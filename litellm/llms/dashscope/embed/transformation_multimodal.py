@@ -15,26 +15,25 @@ from ..common_utils import DashScopeError
 
 DEFAULT_API_BASE = "https://dashscope.aliyuncs.com/api/v1/services/embeddings/multimodal-embedding/multimodal-embedding"
 
-DASHSCOPE_MULTIMODAL_EMBEDDING_MODELS = {
-    "tongyi-embedding-vision-flash",
-    "tongyi-embedding-vision-flash-2026-03-06",
-    "tongyi-embedding-vision-plus",
-    "tongyi-embedding-vision-plus-2026-03-06",
-    "qwen3-vl-embedding",
-    "qwen2.5-vl-embedding",
-}
-
 
 class DashScopeMultimodalEmbeddingConfig(BaseEmbeddingConfig):
 
     @staticmethod
     def is_multimodal_embedding(model: str) -> bool:
-        """Check if model name matches multimodal embedding prefix."""
-        base = model.split("/")[-1] if "/" in model else model
-        return any(
-            base.startswith(prefix)
-            for prefix in DASHSCOPE_MULTIMODAL_EMBEDDING_MODELS | {"multimodal-embedding"}
-        )
+        """Return True if the model name indicates a multimodal embedding model.
+
+        A model is considered multimodal when its name (after stripping the
+        provider prefix) contains any of the following signals:
+          - "multimodal"  (e.g. multimodal-embedding-v1)
+          - "vl"          (e.g. qwen3-vl-embedding, qwen2.5-vl-embedding)
+          - "vision"      (e.g. tongyi-embedding-vision-flash)
+
+        This avoids maintaining a hardcoded allowlist: any future DashScope
+        multimodal embedding model that follows the naming convention will be
+        routed correctly without a code change.
+        """
+        base = model.split("/")[-1].lower() if "/" in model else model.lower()
+        return any(kw in base for kw in ("multimodal", "vl", "vision"))
 
     def get_supported_openai_params(self, model: str) -> List[str]:
         return ["dimensions"]

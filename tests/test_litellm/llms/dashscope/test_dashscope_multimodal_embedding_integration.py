@@ -201,5 +201,5 @@ def test_multimodal_embedding_custom_api_base():
 
     call_args = mock_http_handler.post.call_args
     posted_url = call_args.kwargs.get("url", call_args.args[0] if call_args.args else "")
-    assert posted_url == f"{vpc_base}/services/embeddings/multimodal-embedding"
+    assert posted_url == f"{vpc_base}/services/embeddings/multimodal-embedding/multimodal-embedding"
     assert result.data[0]["embedding"] == [0.1, 0.2, 0.3]

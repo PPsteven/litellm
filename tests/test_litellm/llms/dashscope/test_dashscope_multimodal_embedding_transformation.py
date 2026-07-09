@@ -79,7 +79,7 @@ def test_get_complete_url_custom_base():
             optional_params={},
             litellm_params={},
         )
-    assert url == "https://xxx.maas.aliyuncs.com/api/v1/services/embeddings/multimodal-embedding"
+    assert url == "https://xxx.maas.aliyuncs.com/api/v1/services/embeddings/multimodal-embedding/multimodal-embedding"
 
 
 def test_get_complete_url_compatible_mode():
@@ -122,13 +122,13 @@ def test_get_complete_url_already_has_path():
         return_value=None,
     ):
         url = config.get_complete_url(
-            api_base="https://xxx.maas.aliyuncs.com/api/v1/services/embeddings/multimodal-embedding",
+            api_base="https://xxx.maas.aliyuncs.com/api/v1/services/embeddings/multimodal-embedding/multimodal-embedding",
             api_key="sk-test",
             model="tongyi-embedding-vision-flash",
             optional_params={},
             litellm_params={},
         )
-    assert url == "https://xxx.maas.aliyuncs.com/api/v1/services/embeddings/multimodal-embedding"
+    assert url == "https://xxx.maas.aliyuncs.com/api/v1/services/embeddings/multimodal-embedding/multimodal-embedding"
 
 
 # === 3. 输入归一化 ===
