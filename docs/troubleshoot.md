@@ -160,3 +160,30 @@ elif litellm.LlmProviders.DASHSCOPE == provider:
         return DashScopeMultimodalEmbeddingConfig()
     return DashScopeEmbeddingConfig()
 ```
+
+---
+
+## [D4/D5] qwen3-vl-embedding 的 usage.input_tokens 只含文本 token，不含图片 token
+
+**Problem description:**
+`qwen3-vl-embedding` 和 `qwen2.5-vl-embedding` 的 API 返回中，`usage.input_tokens` 只包含文本 token 数（如 7），图片 token 在顶层 `usage.image_tokens` 字段（如 896）。而 `tongyi-embedding-vision-*` 系列的 `input_tokens` 是总数（文本 + 图片），图片 token 嵌套在 `input_tokens_details.image_tokens`。
+
+**Root cause:**
+DashScope 多模态 embedding API 的 usage 格式因模型而异，没有统一规范。cost calculator 的 `_extract_token_breakdown` 使用 `text_tokens = prompt_tokens - image_tokens` 公式，要求 `prompt_tokens` 为总数。
+
+**Solution / workaround:**
+在 `transformation_multimodal.py` 的 `transform_embedding_response` 中，检测到顶层 `image_tokens` 字段时，将 `input_tokens` 修正为 `input_tokens + image_tokens`，使 `prompt_tokens` 成为总数。`tongyi` 系列走 `input_tokens_details` 分支，`input_tokens` 本身已是总数，无需修正。
+
+---
+
+## [D4/D5] backup JSON 文件缺失 dashscope embedding 条目
+
+**Problem description:**
+`litellm/model_prices_and_context_window_backup.json` 中完全没有 `dashscope/qwen3-vl-embedding` 等 7 个 embedding 模型的 pricing entry。修改主文件后，如果不同步 backup，`LITELLM_LOCAL_MODEL_COST_MAP=True` 模式下找不到这些模型。
+
+**Root cause:**
+backup 文件是主文件的独立副本，需要手动同步。主文件中有这些条目但 backup 中没有，可能是历史同步遗漏。
+
+**Solution:**
+修改主文件后，必须同步修改 backup 文件。直接复制主文件中对应的 JSON 块到 backup 的相同位置（按字母序插入）。
+```
