@@ -147,8 +147,30 @@ class DashScopeMultimodalEmbeddingConfig(BaseEmbeddingConfig):
         usage = response_json.get("usage") or {}
         input_tokens = usage.get("input_tokens", 0)
         total_tokens = usage.get("total_tokens", input_tokens)
+
+        text_tokens = None
+        image_tokens = None
+        if "input_tokens_details" in usage:
+            image_tokens = usage["input_tokens_details"].get("image_tokens")
+            text_tokens = usage["input_tokens_details"].get("text_tokens")
+        elif "image_tokens" in usage:
+            image_tokens = usage["image_tokens"]
+            text_tokens = input_tokens
+            input_tokens = input_tokens + image_tokens
+            total_tokens = max(total_tokens, input_tokens)
+
+        prompt_tokens_details = None
+        if image_tokens is not None or text_tokens is not None:
+            from litellm.types.utils import PromptTokensDetailsWrapper
+            prompt_tokens_details = PromptTokensDetailsWrapper(
+                image_tokens=image_tokens,
+                text_tokens=text_tokens,
+            )
+
         setattr(model_response, "usage",
-                Usage(prompt_tokens=input_tokens, completion_tokens=0, total_tokens=total_tokens))
+                Usage(prompt_tokens=input_tokens, completion_tokens=0,
+                      total_tokens=total_tokens,
+                      prompt_tokens_details=prompt_tokens_details))
         if "request_id" in response_json:
             setattr(model_response, "id", response_json["request_id"])
         return model_response

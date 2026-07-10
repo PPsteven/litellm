@@ -15,17 +15,17 @@
 - [x] 创建 docs/D1-fix-multimodal-url.md（新建 transformation_multimodal.py）
 - [x] 创建 docs/D2-unit-tests.md
 - [x] 创建 docs/D3-integration-test.md
+- [x] 创建 docs/D4-pricing-mapping.md
+- [x] 创建 docs/D5-cost-calculator.md
 - [x] **D1**: 新建 `transformation_multimodal.py` + 修改 `__init__.py` + 修改 `utils.py` 路由
 - [x] **D2**: 实现多模态 embedding 单元测试并验证（22 tests passed）
 - [x] **D3**: 实现多模态 embedding 集成测试并验证（4 tests passed）
+- [x] **D4**: 修正 `model_prices_and_context_window.json` 中多模态 embedding 定价字段（`input_cost_per_image` → `input_cost_per_image_token`，删除 `input_cost_per_video_per_second`），修正 `qwen2.5-vl-embedding` 价格（0.0 → 7e-07），新增 `text-embedding-v3/v4` 条目
+- [x] **D5**: 重构 `cost_calculator.py`（chat/embedding 路径分离），更新 `transformation_multimodal.py`（归一化 `image_tokens` 到 `prompt_tokens_details`），追加 6 个多模态计费测试用例（11 tests passed）
 
 ## 已知问题
 
 - （无）
-
-## 踩坑记录
-
-- `pytest-asyncio` 未安装，`asyncio_mode = "auto"` 配置不生效。集成测试中 async 测试用 `asyncio.run()` 包裹代替 `@pytest.mark.asyncio`。
 
 ## 下一步
 
