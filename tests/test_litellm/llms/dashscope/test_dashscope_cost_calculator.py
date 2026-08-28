@@ -560,8 +560,19 @@ class TestDashscopeCostCalculator:
         prompt_cost, _ = dashscope_cost_per_token(
             model="tongyi-embedding-vision-plus", usage=usage
         )
-        model_info = litellm.get_model_info("dashscope/tongyi-embedding-vision-plus")
-        expected = 100 * model_info["input_cost_per_token"]
+        expected = 100 * 9e-8
+        assert math.isclose(prompt_cost, expected, rel_tol=1e-10)
+
+    def test_tongyi_flash_uses_separate_text_and_image_prices(self):
+        usage = Usage(
+            prompt_tokens=100,
+            completion_tokens=0,
+            prompt_tokens_details=PromptTokensDetailsWrapper(image_tokens=50),
+        )
+        prompt_cost, _ = dashscope_cost_per_token(
+            model="tongyi-embedding-vision-flash", usage=usage
+        )
+        expected = (50 * 9e-8) + (50 * 3e-8)
         assert math.isclose(prompt_cost, expected, rel_tol=1e-10)
 
     def test_top_level_image_tokens(self):
@@ -572,10 +583,7 @@ class TestDashscopeCostCalculator:
         prompt_cost, _ = dashscope_cost_per_token(
             model="qwen3-vl-embedding", usage=usage
         )
-        model_info = litellm.get_model_info("dashscope/qwen3-vl-embedding")
-        text_cost = 7 * model_info["input_cost_per_token"]
-        image_cost = 896 * model_info["input_cost_per_image_token"]
-        expected = text_cost + image_cost
+        expected = (7 * 1e-7) + (896 * 2.58e-7)
         assert math.isclose(prompt_cost, expected, rel_tol=1e-10)
 
     def test_missing_pricing_entry(self):

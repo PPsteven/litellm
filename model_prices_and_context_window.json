@@ -54206,11 +54206,11 @@
     },
     "dashscope/qwen3-vl-embedding": {
         "input_cost_per_token": 1e-07,
-        "input_cost_per_image_token": 3e-07,
+        "input_cost_per_image_token": 2.58e-07,
         "litellm_provider": "dashscope",
         "mode": "embedding",
         "output_cost_per_token": 0.0,
-        "source": "https://bailian.console.aliyun.com/cn-beijing/?tab=model#/model-market/detail/qwen3-vl-embedding",
+        "source": "https://www.alibabacloud.com/help/en/model-studio/model-pricing",
         "supports_embedding_image_input": true
     }
 }

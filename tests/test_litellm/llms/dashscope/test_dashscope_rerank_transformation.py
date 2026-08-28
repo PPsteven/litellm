@@ -328,6 +328,20 @@ class TestDashScopeRerankCost:
         assert prompt_cost == pytest.approx(1e-4)
         assert completion_cost == 0.0
 
+    def test_qwen3_rerank_uses_official_international_price(self):
+        import litellm
+        from litellm.types.rerank import RerankBilledUnits
+
+        model_info = litellm.get_model_info("dashscope/qwen3-rerank")
+        billed = RerankBilledUnits(total_tokens=79)
+        prompt_cost, completion_cost = self.config.calculate_rerank_cost(
+            model="qwen3-rerank",
+            billed_units=billed,
+            model_info=model_info,
+        )
+        assert prompt_cost == pytest.approx(79 * 1e-7)
+        assert completion_cost == 0.0
+
     def test_cost_zero_tokens(self):
         from litellm.types.rerank import RerankBilledUnits
 
